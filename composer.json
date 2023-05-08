@@ -1,0 +1,15 @@
+{
+    "description": "Projeto Site da Vp Service Gás",
+    "authors": [
+        { 
+            "name": "João Fernando Bonhin Jr",
+            "email": "joaobonhin@yahoo.com.br"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Core\\": "core"
+        }
+    },
+    "require": {}
+}
