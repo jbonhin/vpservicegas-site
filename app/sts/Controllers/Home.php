@@ -14,20 +14,21 @@ if (!defined('C7E3L8K9E5')) {
  * @author João Fernando <joaobonhin@yahoo.com.br>
  */
 class Home
-{    
+{
+    
     /** @var array|string|null $dados Recebe os dados que devem ser enviados para VIEW */
     private array|string|null $data;
 
     /**
-     * Instantiar a classe responsável em carregar a View
+     * Instanciar a MODELS e receber o retorno
+     * Instantiar a classe responsável em carregar a View e enviar os dados para View.
      * 
      * @return void
      */
-    public function index()
+    public function index(): void
     {
         $home = new \Sts\Models\StsHome();
-        $this->data = $home->index();    
-        //var_dump($this->data);    
+        $this->data = $home->index();        
         
         $loadView= new \Core\ConfigView("sts/Views/home/home", $this->data);
         $loadView->loadView();
