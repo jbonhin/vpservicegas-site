@@ -19,10 +19,15 @@ class ConfigController extends Config
     private string $url;
     /** @var array $urlArray Recebe a URL convertida para array */
     private array $urlArray;
+    /** @var string $urlController Recebe da URL o nome da controller */
     private string $urlController;
+    /** @var string $urlParamentro Recebe da URL o parâmetro */
     /*private string $urlParameter;*/
     private string $urlSlugController;
+    /** @var array $format Recebe o array de caracteres especiais que devem ser substituido */
     private array $format;
+    /** @var string $classe Recebe a classe */
+    private string $classLoad;
 
     /**
      * Recebe a URL do .htaccess
@@ -31,28 +36,21 @@ class ConfigController extends Config
     public function __construct()
     {
         $this->config();
-        
-        if(!empty(filter_input(INPUT_GET, 'url', FILTER_DEFAULT))){
+        if (!empty(filter_input(INPUT_GET, 'url', FILTER_DEFAULT))) {
             $this->url = filter_input(INPUT_GET, 'url', FILTER_DEFAULT);
-            //var_dump($this->url);
 
             $this->clearUrl();
 
             $this->urlArray = explode("/", $this->url);
-            //var_dump($this->urlArray);
 
-            if(isset($this->urlArray[0])){
-                //var_dump($this->urlArray[0]);
+            if (isset($this->urlArray[0])) {
                 $this->urlController = $this->slugController($this->urlArray[0]);
-            }else{
+            } else {
                 $this->urlController = $this->slugController(CONTROLLERERRO);
             }
-
-        }else{
+        } else {
             $this->urlController = $this->slugController(CONTROLLER);
         }
-
-        //echo "Controller: {$this->urlController}<br>";
     }
 
     /**
@@ -61,12 +59,13 @@ class ConfigController extends Config
      *
      * @return void
      */
-    private function clearUrl(){
-        //Eliminar as tags
+    private function clearUrl(): void
+    {
+        //Eliminar as tag
         $this->url = strip_tags($this->url);
         //Eliminar espaços em branco
         $this->url = trim($this->url);
-        //Eliminar a barra no final da url
+        //Eliminar a barra no final da URL
         $this->url = rtrim($this->url, "/");
         //Eliminar caracteres 
         $this->format['a'] = 'ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜüÝÞßàáâãäåæçèéêëìíîïðñòóôõöøùúûýýþÿRr"!@#$%&*()_-+={[}]?;:.,\\\'<>°ºª ';
@@ -81,7 +80,7 @@ class ConfigController extends Config
      * @param string $slugController Nome da classe
      * @return string Retorna a controller "sobre-empresa" convertido para o nome da Classe "SobreEmpresa"
      */
-    private function slugController($slugController)
+    private function slugController($slugController): string
     {
         //Converter para minusculo
         $this->urlSlugController = strtolower($slugController);
@@ -100,10 +99,30 @@ class ConfigController extends Config
      *
      * @return void
      */
-    public function loadPage()
+    public function loadPage(): void
     {
-        $classLoad = "\\Sts\\Controllers\\". $this->urlController;
-        $classPage = new $classLoad();
-        $classPage->index();
+        $this->classLoad = "\\Sts\\Controllers\\" . $this->urlController;
+        if (class_exists($this->classLoad)) {
+            $this->loadClass();
+        } else {
+            $this->urlController = $this->slugController(CONTROLLERERRO);
+            $this->loadPage();
+        }
+    }
+
+    /**  
+     * Verificar se o método existe, existindo o método carrega a página;
+     * Não existindo o método, para o carregamento e apresenta mensagem de erro.
+     * 
+     * @return void
+     */
+    private function loadClass(): void
+    {
+        $classPage = new $this->classLoad();
+        if (method_exists($classPage, "index")) {
+            $classPage->index();
+        } else {
+            die("Erro: Por favor tente novamente. Caso o problema persista, entre em contato o administrador " . EMAILADM);
+        }
     }
 }

@@ -26,7 +26,12 @@ class SobreEmpresa
      */
     public function index()
     {
-        $this->data = [];
+
+        $aboutCompany = new \Sts\Models\StsSobreEmpresa();
+        $this->data['about-company'] = $aboutCompany->index();
+
+        //var_dump($this->data['about-company']);
+        
         $loadView= new \Core\ConfigView("sts/Views/sobreEmpresa/sobreEmpresa", $this->data);
         $loadView->loadView();
     }
